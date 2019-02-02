@@ -4,3 +4,5 @@ Visualization of Binary Heap add/remove operations
 
 Right now only works for minheaps, but will soon support maxheaps
 
+
+![Screenshot](screenshot.png)
