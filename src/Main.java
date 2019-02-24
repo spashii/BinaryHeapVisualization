@@ -16,7 +16,11 @@ import java.util.ArrayList;
 
 public class Main extends Application {
 
-    private GUIControlledBinaryHeap heap = new GUIControlledBinaryHeap();
+
+    public static Object treeImplementation = new BinaryHeap<Integer>();
+
+
+    private TreeRenderer renderer;
 
     private Pane pane;
     private HBox arrayBox = new HBox();
@@ -24,9 +28,13 @@ public class Main extends Application {
     private ArrayList<Transition> animationQueue = new ArrayList<Transition>();
     private boolean setup = false;
 
+
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setTitle("Binary Heap Visualization");
+
+        renderer = new TreeRenderer(treeImplementation);
+
+        stage.setTitle("Binary renderer Visualization");
 
         pane = new Pane();
         pane.setStyle("-fx-background-color: lightblue;");
@@ -36,10 +44,10 @@ public class Main extends Application {
         controls.setStyle("-fx-background-color: lightgray;");
 
         final TextField field = new TextField();
-        Button addButton = new Button("Add to Heap");
+        Button addButton = new Button("Add to renderer");
         addButton.setOnAction(event -> {
                 try {
-                    heap.add(Integer.parseInt(field.getText()));
+                    renderer.add(Integer.parseInt(field.getText()));
                     renderTree();
                     renderArray();
                 } catch (NumberFormatException ex) {
@@ -52,7 +60,7 @@ public class Main extends Application {
         Button removeButton = new Button("Remove root");
         removeButton.setOnAction(event -> {
                 animateInitialRemove();
-                heap.remove();
+                renderer.remove(null);
                 renderTree();
                 renderArray();
             }
@@ -64,7 +72,7 @@ public class Main extends Application {
 
         arrayBox.setAlignment(Pos.CENTER);
         arrayBox.setSpacing(20.0);
-        arrayBox.getChildren().add(new BinaryHeapNode(-1).getArrayBox());
+        arrayBox.getChildren().add(new GUINode<>().getArrayBox());
         pane.getChildren().add(arrayBox);
 
         Scene scene = new Scene(pane, 1000, 1000);
@@ -74,20 +82,20 @@ public class Main extends Application {
         arrayBox.setTranslateX(30);
         arrayBox.setTranslateY(pane.getHeight() - 60);
 
-        setupHeap();
+        setuprenderer();
     }
 
 
-    private void setupHeap() {
-        heap.add(11);
-        heap.add(17);
-        heap.add(15);
-        heap.add(20);
-        heap.add(9);
-        heap.add(55);
-        heap.add(4);
-        heap.add(16);
-        heap.add(8);
+    private void setuprenderer() {
+        renderer.add(11);
+        renderer.add(17);
+        renderer.add(15);
+        renderer.add(20);
+        renderer.add(9);
+        renderer.add(55);
+        renderer.add(4);
+        renderer.add(16);
+        renderer.add(8);
         setup = true;
 
         renderTree();
@@ -95,20 +103,20 @@ public class Main extends Application {
     }
 
     private void renderTree() {
-        int rows = (int)Math.ceil(Math.log(heap.size() + 1) / Math.log(2));
+        int rows = (int)Math.ceil(Math.log(renderer.size() + 1) / Math.log(2));
         int index = 1;
         for (int i = 0; i < rows; i++) {
             int xCoord = 0;
             for (int j = 0; j < Math.pow(2, i); j++) {
                 xCoord += 400 / Math.pow(2, i);
                 int y = 100 + i * 100;
-                StackPane stack = heap.getNode(index).getStack();
+                StackPane stack = renderer.getNode(index).getStack();
                 stack.relocate(xCoord, y);
                 if (!pane.getChildren().contains(stack)) {
                     pane.getChildren().add(stack);
                 }
                 index++;
-                if (index > heap.size()) {
+                if (index > renderer.size()) {
                     break;
                 }
                 xCoord += 400 / Math.pow(2, i);
@@ -118,28 +126,28 @@ public class Main extends Application {
     }
 
     private void renderArray() {
-        for (int i = 1; i <= heap.size(); i++) {
-            if (!arrayBox.getChildren().contains(heap.getNode(i).getArrayStack())) {
-                arrayBox.getChildren().add(heap.getNode(i).getArrayStack());
+        for (int i = 1; i <= renderer.size(); i++) {
+            if (!arrayBox.getChildren().contains(renderer.getNode(i).getArrayStack())) {
+                arrayBox.getChildren().add(renderer.getNode(i).getArrayStack());
             }
         }
     }
 
     private void animateInitialRemove() {
-        pane.getChildren().remove(heap.getNode(heap.size()).getStack());
-        arrayBox.getChildren().remove(heap.getNode(heap.size()).getArrayStack());
+        pane.getChildren().remove(renderer.getNode(renderer.size()).getStack());
+        arrayBox.getChildren().remove(renderer.getNode(renderer.size()).getArrayStack());
 
-        heap.getNode(heap.size()).setStack(heap.getNode(1).getStack());
-        heap.getNode(heap.size()).setCircle(heap.getNode(1).getCircle());
-        heap.getNode(heap.size()).setLabel(heap.getNode(1).getLabel());
-        heap.getNode(heap.size()).setArrayStack(heap.getNode(1).getArrayStack());
-        heap.getNode(heap.size()).setArrayBox(heap.getNode(1).getArrayBox());
-        heap.getNode(heap.size()).setArrayLabel(heap.getNode(1).getArrayLabel());
+        renderer.getNode(renderer.size()).setStack(renderer.getNode(1).getStack());
+        renderer.getNode(renderer.size()).setCircle(renderer.getNode(1).getCircle());
+        renderer.getNode(renderer.size()).setLabel(renderer.getNode(1).getLabel());
+        renderer.getNode(renderer.size()).setArrayStack(renderer.getNode(1).getArrayStack());
+        renderer.getNode(renderer.size()).setArrayBox(renderer.getNode(1).getArrayBox());
+        renderer.getNode(renderer.size()).setArrayLabel(renderer.getNode(1).getArrayLabel());
 
-        heap.getNode(heap.size()).getLabel().setText(heap.getNode(heap.size()).getData() + "");
-        heap.getNode(heap.size()).getArrayLabel().setText(heap.getNode(heap.size()).getData() + "");
+        renderer.getNode(renderer.size()).getLabel().setText(renderer.getNode(renderer.size()).getData() + "");
+        renderer.getNode(renderer.size()).getArrayLabel().setText(renderer.getNode(renderer.size()).getData() + "");
 
-        heap.getNode(heap.size()).getCircle().setFill(Color.MOCCASIN);
+        renderer.getNode(renderer.size()).getCircle().setFill(Color.MOCCASIN);
         Transition animation = new Transition() {
             { setCycleDuration(Duration.millis(2000)); }
             @Override
@@ -160,32 +168,32 @@ public class Main extends Application {
 
     public void animateSwap(int node1, int node2, int data1, int data2) {
         if (!setup) {
-            heap.getNode(node1).getLabel().setText(data2 + "");
-            heap.getNode(node2).getLabel().setText(data1 + "");
-            heap.getNode(node1).getArrayLabel().setText(data2 + "");
-            heap.getNode(node2).getArrayLabel().setText(data1 + "");
+            renderer.getNode(node1).getLabel().setText(data2 + "");
+            renderer.getNode(node2).getLabel().setText(data1 + "");
+            renderer.getNode(node1).getArrayLabel().setText(data2 + "");
+            renderer.getNode(node2).getArrayLabel().setText(data1 + "");
             return;
         }
         Transition animation = new Transition() {
             { setCycleDuration(Duration.millis(2000)); }
             @Override
             protected void interpolate(double frac) {
-                heap.getNode(node1).getCircle().setFill(Color.GREENYELLOW);
-                heap.getNode(node2).getCircle().setFill(Color.GREENYELLOW);
-                heap.getNode(node1).getArrayBox().setFill(Color.GREENYELLOW);
-                heap.getNode(node2).getArrayBox().setFill(Color.GREENYELLOW);
+                renderer.getNode(node1).getCircle().setFill(Color.GREENYELLOW);
+                renderer.getNode(node2).getCircle().setFill(Color.GREENYELLOW);
+                renderer.getNode(node1).getArrayBox().setFill(Color.GREENYELLOW);
+                renderer.getNode(node2).getArrayBox().setFill(Color.GREENYELLOW);
             }
 
         };
         animation.setOnFinished(event -> {
-            heap.getNode(node1).getCircle().setFill(Color.NAVY);
-            heap.getNode(node2).getCircle().setFill(Color.NAVY);
-            heap.getNode(node1).getLabel().setText(data2 + "");
-            heap.getNode(node2).getLabel().setText(data1 + "");
-            heap.getNode(node1).getArrayBox().setFill(Color.LIGHTGRAY);
-            heap.getNode(node2).getArrayBox().setFill(Color.LIGHTGRAY);
-            heap.getNode(node1).getArrayLabel().setText(data2 + "");
-            heap.getNode(node2).getArrayLabel().setText(data1 + "");
+            renderer.getNode(node1).getCircle().setFill(Color.NAVY);
+            renderer.getNode(node2).getCircle().setFill(Color.NAVY);
+            renderer.getNode(node1).getLabel().setText(data2 + "");
+            renderer.getNode(node2).getLabel().setText(data1 + "");
+            renderer.getNode(node1).getArrayBox().setFill(Color.LIGHTGRAY);
+            renderer.getNode(node2).getArrayBox().setFill(Color.LIGHTGRAY);
+            renderer.getNode(node1).getArrayLabel().setText(data2 + "");
+            renderer.getNode(node2).getArrayLabel().setText(data1 + "");
             animationQueue.remove(0);
             if (animationQueue.size() > 0) {
                 animationQueue.get(0).play();
@@ -198,16 +206,12 @@ public class Main extends Application {
 
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    private class GUIControlledBinaryHeap extends BinaryHeap {
-        public void swap(int index1, int index2) {
-            int data1 = getNode(index1).getData();
-            int data2 = getNode(index2).getData();
-            super.swap(index1, index2);
-            animateSwap(index1, index2, data1, data2);
-        }
-    }
+//    private class GUIControlledBinaryrenderer extends Binaryrenderer {
+//        public void swap(int index1, int index2) {
+//            int data1 = getNode(index1).getData();
+//            int data2 = getNode(index2).getData();
+//            super.swap(index1, index2);
+//            animateSwap(index1, index2, data1, data2);
+//        }
+//    }
 }
